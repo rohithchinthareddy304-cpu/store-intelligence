@@ -1,0 +1,48 @@
+{
+  "store_id": "ST1008",
+  "store_name": "Brigade_Bangalore",
+  "city": "Bangalore",
+  "open_hours": {"open": "10:00", "close": "22:00"},
+  "cameras": {
+    "CAM_1": {
+      "label": "Main Floor - Skincare / Clean Beauty Zone",
+      "type": "floor",
+      "zones_covered": ["SKINCARE", "CLEAN_BEAUTY", "KOREAN_BEAUTY"]
+    },
+    "CAM_2": {
+      "label": "Main Floor - Makeup / Accessories Zone",
+      "type": "floor",
+      "zones_covered": ["MAKEUP", "ACCESSORIES", "LIPS_EYES"]
+    },
+    "CAM_3": {
+      "label": "Entry / Exit Threshold",
+      "type": "entry_exit",
+      "zones_covered": ["ENTRY_EXIT"]
+    },
+    "CAM_4": {
+      "label": "Stock Room / Back Office",
+      "type": "backroom",
+      "zones_covered": ["BACKROOM"]
+    },
+    "CAM_5": {
+      "label": "Billing Counter",
+      "type": "billing",
+      "zones_covered": ["BILLING"]
+    }
+  },
+  "zones": [
+    {"zone_id": "ENTRY_EXIT",    "sku_zone": null,          "camera": "CAM_3", "is_customer_zone": false},
+    {"zone_id": "SKINCARE",      "sku_zone": "SKINCARE",    "camera": "CAM_1", "is_customer_zone": true},
+    {"zone_id": "CLEAN_BEAUTY",  "sku_zone": "CLEAN_BEAUTY","camera": "CAM_1", "is_customer_zone": true},
+    {"zone_id": "KOREAN_BEAUTY", "sku_zone": "KOREAN_BEAUTY","camera": "CAM_1","is_customer_zone": true},
+    {"zone_id": "MAKEUP",        "sku_zone": "MAKEUP",      "camera": "CAM_2", "is_customer_zone": true},
+    {"zone_id": "ACCESSORIES",   "sku_zone": "ACCESSORIES", "camera": "CAM_2", "is_customer_zone": true},
+    {"zone_id": "LIPS_EYES",     "sku_zone": "LIPS_EYES",   "camera": "CAM_2", "is_customer_zone": true},
+    {"zone_id": "BILLING",       "sku_zone": null,          "camera": "CAM_5", "is_customer_zone": true},
+    {"zone_id": "BACKROOM",      "sku_zone": null,          "camera": "CAM_4", "is_customer_zone": false}
+  ],
+  "staff_identifiers": {
+    "employee_codes": ["CL2063", "CL2727", "CL1997", "CL2541", "CL2680"],
+    "salesperson_ids": [1178, 971, 523, 737, 1190]
+  }
+}
