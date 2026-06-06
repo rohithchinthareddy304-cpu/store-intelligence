@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purplle Store Intelligence Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f8f9fa;color:#1a1a2e}
+.header{background:#7B2D8B;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:18px;font-weight:600}
+.live{display:flex;align-items:center;gap:6px;font-size:13px}
+.dot{width:9px;height:9px;border-radius:50%;background:#4ade80;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.container{max-width:1100px;margin:0 auto;padding:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px}
+.card .label{font-size:12px;color:#64748b;margin-bottom:4px}
+.card .val{font-size:26px;font-weight:600;color:#1a1a2e}
+.card .sub{font-size:12px;margin-top:4px;color:#7B2D8B}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.section-title{font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.funnel{display:flex;flex-direction:column;gap:8px}
+.fstep{display:flex;align-items:center;gap:8px}
+.fstep-label{font-size:12px;color:#64748b;width:90px;text-align:right}
+.fbar-wrap{flex:1;background:#f1f5f9;border-radius:5px;height:30px;overflow:hidden}
+.fbar{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:10px;font-size:12px;font-weight:600;color:#fff;transition:width 1s ease}
+.fstep-count{font-size:13px;font-weight:600;width:36px;text-align:right}
+.heatmap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.zone{border-radius:8px;padding:12px;text-align:center}
+.zone .zname{font-size:11px;font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.zone .zscore{font-size:24px;font-weight:700}
+.zone .zdwell{font-size:10px;margin-top:3px;opacity:.75}
+.anomaly{border-radius:8px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px}
+.a-warn{background:#fffbeb;border:1px solid #f59e0b}
+.a-crit{background:#fef2f2;border:1px solid #ef4444}
+.a-info{background:#eff6ff;border:1px solid #3b82f6}
+.a-ok{background:#f0fdf4;border:1px solid #22c55e}
+.a-title{font-size:13px;font-weight:600}
+.a-desc{font-size:11px;color:#64748b;margin-top:2px}
+.health-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9}
+.health-row:last-child{border-bottom:none}
+.cam-badge{display:inline-block;background:#f3e8ff;color:#7B2D8B;font-size:11px;padding:2px 8px;border-radius:10px;margin:2px}
+.footer{text-align:center;font-size:11px;color:#94a3b8;padding:12px 0;margin-top:8px}
+@media(max-width:700px){.grid4{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>purplle &nbsp;·&nbsp; store intelligence</h1>
+    <div style="font-size:12px;opacity:.75;margin-top:2px">Brigade Road Bangalore &nbsp;·&nbsp; ST1008</div>
+  </div>
+  <div class="live">
+    <div class="dot"></div>
+    <span id="feed-status">connecting...</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="grid4">
+    <div class="card">
+      <div class="label">Unique visitors</div>
+      <div class="val" id="m-visitors">—</div>
+      <div class="sub" id="m-conv">conversion —</div>
+    </div>
+    <div class="card">
+      <div class="label">Conversion rate</div>
+      <div class="val" id="m-rate">—</div>
+      <div class="sub" id="m-txn">transactions —</div>
+    </div>
+    <div class="card">
+      <div class="label">Queue depth now</div>
+      <div class="val" id="m-queue">—</div>
+      <div class="sub" id="m-abandon">abandonment —</div>
+    </div>
+    <div class="card">
+      <div class="label">Feed lag</div>
+      <div class="val" id="m-lag">—</div>
+      <div class="sub" id="m-events">events today</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title">Conversion funnel</div>
+        <div class="funnel">
+          <div class="fstep"><div class="fstep-label">Entry</div><div class="fbar-wrap"><div class="fbar" id="fb0" style="width:100%;background:#7B2D8B"></div></div><div class="fstep-count" id="fc0">—</div></div>
+          <div class="fstep"><div class="fstep-label">Zone visit</div><div class="fbar-wrap"><div class="fbar" id="fb1" style="width:80%;background:#9333ea"></div></div><div class="fstep-count" id="fc1">—</div></div>
+          <div class="fstep"><div class="fstep-label">Billing queue</div><div class="fbar-wrap"><div class="fbar" id="fb2" style="width:50%;background:#a855f7"></div></div><div class="fstep-count" id="fc2">—</div></div>
+          <div class="fstep"><div class="fstep-label">Purchase</div><div class="fbar-wrap"><div class="fbar" id="fb3" style="width:30%;background:#c084fc"></div></div><div class="fstep-count" id="fc3">—</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Active anomalies</div>
+        <div id="anomaly-div"><div style="font-size:12px;color:#94a3b8">loading...</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title">Zone heatmap</div>
+        <div class="heatmap-grid" id="heatmap-div">
+          <div style="font-size:12px;color:#94a3b8">loading...</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Camera health</div>
+        <div id="health-div">
+          <div class="health-row"><span style="font-size:13px;color:#94a3b8">loading...</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer" id="footer">auto-refreshes every 8 seconds</div>
+
+</div>
+
+<script>
+const API = 'https://store-intelligence-86mt.onrender.com';
+const STORE = 'ST1008';
+
+function zoneColor(score) {
+  if (score > 70) return { bg: '#fde68a', text: '#92400e' };
+  if (score > 40) return { bg: '#e9d5ff', text: '#6b21a8' };
+  return { bg: '#f1f5f9', text: '#475569' };
+}
+
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+async function refresh() {
+  try {
+    const [metrics, funnel, heatmap, anomalies, health] = await Promise.all([
+      fetchJSON(`${API}/stores/${STORE}/metrics`),
+      fetchJSON(`${API}/stores/${STORE}/funnel`),
+      fetchJSON(`${API}/stores/${STORE}/heatmap`),
+      fetchJSON(`${API}/stores/${STORE}/anomalies`),
+      fetchJSON(`${API}/health`),
+    ]);
+
+    // Metrics
+    document.getElementById('m-visitors').textContent = metrics.unique_visitors ?? 0;
+    const cr = ((metrics.conversion_rate || 0) * 100).toFixed(1);
+    document.getElementById('m-conv').textContent = cr + '% conversion';
+    document.getElementById('m-rate').textContent = cr + '%';
+    document.getElementById('m-txn').textContent = (metrics.total_transactions ?? 0) + ' transactions';
+    const q = metrics.queue_depth_current ?? 0;
+    document.getElementById('m-queue').textContent = q;
+    document.getElementById('m-queue').style.color = q > 3 ? '#ef4444' : q > 1 ? '#f59e0b' : '#22c55e';
+    document.getElementById('m-abandon').textContent = ((metrics.abandonment_rate || 0) * 100).toFixed(1) + '% abandon';
+
+    // Health
+    const lag = health.feed_lag_minutes ?? 0;
+    document.getElementById('m-lag').textContent = lag > 999 ? 'N/A' : lag.toFixed(1) + 'm';
+    document.getElementById('m-events').textContent = (health.event_count_today ?? 0) + ' events today';
+    const ok = health.feed_status === 'OK';
+    document.getElementById('feed-status').textContent = ok ? 'live feed ok' : 'stale feed';
+    document.getElementById('feed-status').style.color = ok ? '#4ade80' : '#fca5a5';
+
+    // Funnel
+    const steps = funnel.funnel || [];
+    const max = steps[0]?.count || 1;
+    steps.forEach((s, i) => {
+      const pct = max > 0 ? Math.round(s.count / max * 100) : 0;
+      const bar = document.getElementById('fb' + i);
+      const cnt = document.getElementById('fc' + i);
+      if (bar) bar.style.width = Math.max(pct, 4) + '%';
+      if (cnt) cnt.textContent = s.count;
+    });
+
+    // Heatmap
+    const zones = (heatmap.zones || []).slice(0, 6);
+    document.getElementById('heatmap-div').innerHTML = zones.length
+      ? zones.map(z => {
+          const c = zoneColor(z.normalised_score);
+          const dwell = z.avg_dwell_ms > 0 ? (z.avg_dwell_ms / 1000).toFixed(0) + 's dwell' : 'no data';
+          return `<div class="zone" style="background:${c.bg};color:${c.text}">
+            <div class="zname">${z.zone_id.replace(/_/g,' ').toLowerCase()}</div>
+            <div class="zscore">${Math.round(z.normalised_score)}</div>
+            <div class="zdwell">${dwell}</div>
+          </div>`;
+        }).join('')
+      : '<div style="font-size:12px;color:#94a3b8">no zone data yet</div>';
+
+    // Anomalies
+    const anoms = anomalies.anomalies || [];
+    document.getElementById('anomaly-div').innerHTML = anoms.length
+      ? anoms.slice(0, 3).map(a => {
+          const cls = a.severity === 'CRITICAL' ? 'a-crit' : a.severity === 'WARN' ? 'a-warn' : 'a-info';
+          const icon = a.severity === 'CRITICAL' ? '⛔' : a.severity === 'WARN' ? '⚠️' : 'ℹ️';
+          return `<div class="anomaly ${cls}">
+            <div style="font-size:16px">${icon}</div>
+            <div><div class="a-title">${a.type.replace(/_/g,' ').toLowerCase()}</div>
+            <div class="a-desc">${a.suggested_action}</div></div>
+          </div>`;
+        }).join('')
+      : '<div class="anomaly a-ok"><div style="font-size:16px">✅</div><div><div class="a-title">no active anomalies</div></div></div>';
+
+    // Camera health
+    const cams = health.cameras_active || [];
+    document.getElementById('health-div').innerHTML = `
+      <div class="health-row">
+        <span style="font-size:13px;color:#64748b">Active cameras</span>
+        <span>${cams.length ? cams.map(c => `<span class="cam-badge">${c}</span>`).join('') : '<span style="font-size:12px;color:#ef4444">none</span>'}</span>
+      </div>
+      <div class="health-row">
+        <span style="font-size:13px;color:#64748b">Last event</span>
+        <span style="font-size:12px">${health.last_event_timestamp ? health.last_event_timestamp.replace('T',' ').replace('Z','') : 'none'}</span>
+      </div>
+      <div class="health-row">
+        <span style="font-size:13px;color:#64748b">API status</span>
+        <span style="font-size:12px;font-weight:600;color:#22c55e">online</span>
+      </div>`;
+
+    document.getElementById('footer').textContent =
+      'last updated ' + new Date().toLocaleTimeString() + ' · auto-refreshes every 8 seconds';
+
+  } catch (e) {
+    document.getElementById('feed-status').textContent = 'waking up (free tier)...';
+    document.getElementById('footer').textContent = 'API sleeping — retrying in 8s...';
+  }
+}
+
+refresh();
+setInterval(refresh, 8000);
+</script>
+</body>
+</html>
