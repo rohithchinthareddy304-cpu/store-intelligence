@@ -1,6 +1,7 @@
 """
 heatmap.py — GET /stores/{store_id}/heatmap
 Zone visit frequency + avg dwell, normalised 0–100.
+Uses data-relative date window instead of calendar "today".
 """
 
 from datetime import datetime, date
@@ -10,6 +11,7 @@ from sqlalchemy import func, distinct
 
 from database import get_db, EventRecord
 from models import HeatmapResponse, HeatmapZone
+from metrics import get_active_range
 
 router = APIRouter()
 
@@ -19,9 +21,7 @@ CUSTOMER_ZONES = ["SKINCARE", "MAKEUP", "CLEAN_BEAUTY", "KOREAN_BEAUTY",
 
 @router.get("/stores/{store_id}/heatmap", response_model=HeatmapResponse)
 def get_heatmap(store_id: str, db: Session = Depends(get_db)):
-    today = date.today()
-    start = datetime(today.year, today.month, today.day)
-    end   = datetime(today.year, today.month, today.day, 23, 59, 59)
+    start, end = get_active_range(db, store_id)
 
     rows = db.query(
         EventRecord.zone_id,
@@ -44,12 +44,10 @@ def get_heatmap(store_id: str, db: Session = Depends(get_db)):
         if r.zone_id in CUSTOMER_ZONES
     }
 
-    # Ensure all customer zones present (even with 0)
     for z in CUSTOMER_ZONES:
         if z not in zone_data:
             zone_data[z] = {"visit_count": 0, "avg_dwell_ms": 0.0}
 
-    # Normalise visit_count 0–100
     max_visits = max((v["visit_count"] for v in zone_data.values()), default=1) or 1
 
     zones = []
